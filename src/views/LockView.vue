@@ -98,6 +98,10 @@ loadLock();
                   v-else-if="scope.row.mimetype.startsWith('video/')"
                   class="fa-solid fa-file-video"
                 ></i>
+                <i
+                  v-else-if="scope.row.mimetype === 'application/zip'"
+                  class="fa-solid fa-file-zipper"
+                ></i>
                 <i v-else class="fa-solid fa-file-binary"></i>
                 {{ scope.row.mimetype }}
               </template>

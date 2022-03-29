@@ -34,9 +34,29 @@ const form = reactive({
   description: "",
   amount: "1",
   uploadFiles: [],
+  loading: false,
 });
 
-const upload = ref();
+const rules = reactive({
+  contract: [{ required: true, message: "Enter a Contract Address" }],
+  tokens: [{ required: true, message: "Enter the token id(s)" }],
+  name: [{ required: true, message: "Enter the name" }],
+});
+
+const uploadForm = ref(null);
+const uploadDragDrop = ref(null);
+
+const showForm = () => {
+  if (uploadForm.value) {
+    uploadForm.value.resetFields();
+    uploadForm.value.clearValidate();
+  }
+  if (uploadDragDrop.value) {
+    uploadDragDrop.value.clearFiles();
+  }
+  form.uploadFiles = [];
+  dialogFormVisible.value = true;
+};
 
 const handleChange = (uploadFile, uploadFiles) => {
   form.uploadFiles = uploadFiles;
@@ -46,25 +66,39 @@ const handleRemove = (uploadFile, uploadFiles) => {
   form.uploadFiles = uploadFiles;
 };
 
-const submitUpload = async () => {
-  const fData = new FormData();
-  fData.append("contract", form.contract);
-  fData.append("tokens", form.tokens);
-  fData.append("name", form.name);
-  fData.append("description", form.description);
-  fData.append("amount", form.amount);
+const submitUpload = async (formRef) => {
+  formRef.validate(async (valid) => {
+    if (valid) {
+      form.loading = true;
+      const fData = new FormData();
+      fData.append("contract", form.contract);
+      fData.append("tokens", form.tokens);
+      fData.append("name", form.name);
+      fData.append("description", form.description);
+      fData.append("amount", form.amount);
 
-  for (const file of form.uploadFiles) {
-    fData.append("files", file.raw, file.name);
-  }
+      for (const file of form.uploadFiles) {
+        fData.append("files", file.raw, file.name);
+      }
 
-  const res = await request.post("/user/lock", fData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+      await request.post("/user/lock", fData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (uploadDragDrop.value) {
+        uploadDragDrop.value.clearFiles();
+      }
+
+      dialogFormVisible.value = false;
+      form.uploadFiles = [];
+      form.loading = false;
+      store.dispatch("refreshLocks");
+    } else {
+      return false;
+    }
   });
-
-  console.log(res);
 };
 </script>
 
@@ -78,7 +112,7 @@ const submitUpload = async () => {
   <template v-if="wallet.connected">
     <el-row :gutter="20" style="margin-top: 48px">
       <el-col :span="24">
-        <el-button type="primary" round @click="dialogFormVisible = true"
+        <el-button type="primary" round @click="showForm"
           ><i class="fa-solid fa-lock"></i> Create Lock</el-button
         >
         <el-card
@@ -148,64 +182,76 @@ const submitUpload = async () => {
       </el-col>
     </el-row>
     <el-dialog v-model="dialogFormVisible">
-      <h2 style="text-align: center; margin-top: 0">
-        Create Unlockable Content
-      </h2>
-      <el-form label-position="right" label-width="148px" :model="form">
-        <el-form-item label="Contract Address">
-          <el-input
-            v-model="form.contract"
-            placeholder="Enter KT1 collection address"
-          />
-        </el-form-item>
-        <el-form-item label="Token ID(s)">
-          <el-input v-model="form.tokens" placeholder="NFT token id(s)" />
-          <span class="helper"
-            >Enter a wilcard [*], a range [3-21], or a comma separated list of
-            single ids or ranges</span
-          >
-        </el-form-item>
-        <el-form-item label="Amount">
-          <el-input v-model="form.amount" placeholder="1" />
-          <span class="helper">Number of tokens required</span>
-        </el-form-item>
-        <el-form-item label="Name">
-          <el-input
-            v-model="form.name"
-            placeholder="Name your unlockable content"
-          />
-        </el-form-item>
-        <el-form-item label="Description">
-          <el-input
-            v-model="form.description"
-            placeholder="Describe your unlockable content"
-          />
-        </el-form-item>
-        <el-form-item label="Files to Lock">
-          <el-upload
-            ref="upload"
-            class="upload"
-            drag
-            action="#"
-            multiple
-            :auto-upload="false"
-            :on-change="handleChange"
-            :on-remove="handleRemove"
-          >
-            <i class="fa-solid fa-file-circle-plus"></i>
-            <div class="el-upload__text">
-              Drop file here or <em>click to upload</em>
-            </div>
-            <template #tip>
-              <div class="el-upload__tip">Files with a size less than 50MB</div>
-            </template>
-          </el-upload>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submitUpload">Submit</el-button>
-          <!-- <el-button @click="resetForm(ruleFormRef)">Reset</el-button> -->
-        </el-form-item>
-      </el-form>
+      <div v-loading="form.loading" element-loading-text="Uploading...">
+        <h2 style="text-align: center; margin-top: 0">
+          Create Unlockable Content
+        </h2>
+        <el-form
+          label-position="right"
+          label-width="148px"
+          :model="form"
+          :rules="rules"
+          ref="uploadForm"
+        >
+          <el-form-item label="Contract Address" prop="contract">
+            <el-input
+              v-model="form.contract"
+              placeholder="Enter KT1 collection address"
+            />
+          </el-form-item>
+          <el-form-item label="Token ID(s)" prop="tokens">
+            <el-input v-model="form.tokens" placeholder="NFT token id(s)" />
+            <span class="helper"
+              >Enter a wilcard [*], a range [3-21], or a comma separated list of
+              single ids or ranges</span
+            >
+          </el-form-item>
+          <el-form-item label="Amount" prop="amount">
+            <el-input v-model="form.amount" placeholder="1" />
+            <span class="helper">Number of tokens required</span>
+          </el-form-item>
+          <el-form-item label="Name" prop="name">
+            <el-input
+              v-model="form.name"
+              placeholder="Name your unlockable content"
+            />
+          </el-form-item>
+          <el-form-item label="Description" prop="description">
+            <el-input
+              v-model="form.description"
+              placeholder="Describe your unlockable content"
+            />
+          </el-form-item>
+          <el-form-item label="Files to Lock">
+            <el-upload
+              ref="uploadDragDrop"
+              class="upload"
+              drag
+              action="#"
+              multiple
+              :auto-upload="false"
+              :on-change="handleChange"
+              :on-remove="handleRemove"
+            >
+              <i class="fa-solid fa-file-circle-plus"></i>
+              <div class="el-upload__text">
+                Drop file here or <em>click to upload</em>
+              </div>
+              <template #tip>
+                <div class="el-upload__tip">
+                  Files with a size less than 100 MB
+                </div>
+              </template>
+            </el-upload>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitUpload(uploadForm)"
+              >Submit</el-button
+            >
+            <!-- <el-button @click="resetForm(ruleFormRef)">Reset</el-button> -->
+          </el-form-item>
+        </el-form>
+      </div>
     </el-dialog>
   </template>
 </template>
