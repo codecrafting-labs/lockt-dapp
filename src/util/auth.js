@@ -50,7 +50,9 @@ const T = () => {
 };
 
 // to reset auth tokens
-const logout = async () =>
-  clearAuthTokens() && (await Tezos.clearActiveAccount());
+const logout = async () => {
+  clearAuthTokens();
+  await Tezos.clearActiveAccount();
+};
 
 export { isLoggedIn, T, login, logout };
