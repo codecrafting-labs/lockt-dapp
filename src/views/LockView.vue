@@ -1,33 +1,33 @@
 <script setup>
-import { reactive, computed, watch } from "vue";
-import { useRoute } from "vue-router";
-import { useStore } from "vuex";
-import { request } from "./../util/api";
-import prettyBytes from "pretty-bytes";
+import { reactive, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { useStore } from 'vuex';
+import { request } from './../util/api';
+import prettyBytes from 'pretty-bytes';
 
 const store = useStore();
 const route = useRoute();
 
 const wallet = computed(() => store.state.wallet);
-const login = () => store.dispatch("connectWallet");
+const login = () => store.dispatch('connectWallet');
 
 const lock = reactive({
   loading: true,
-  name: "",
-  description: "",
+  name: '',
+  description: '',
   files: [],
 });
 
 const loadLock = async () => {
   lock.loading = true;
   if (!store.state.wallet.connected) {
-    request.get(`/lock/${route.params.lockUuid}/preview`).then((res) => {
+    request.get(`/lock/${route.params.lockUuid}/preview`).then(res => {
       lock.name = res.data.name;
       lock.description = res.data.description;
       lock.loading = false;
     });
   } else {
-    request.get(`/lock/${route.params.lockUuid}`).then((res) => {
+    request.get(`/lock/${route.params.lockUuid}`).then(res => {
       lock.name = res.data.name;
       lock.description = res.data.description;
       lock.files = res.data.files;
@@ -36,19 +36,19 @@ const loadLock = async () => {
   }
 };
 
-const downloadFile = async (hash) => {
-  request.get(`/lock/${route.params.lockUuid}/file/${hash}`).then((res) => {
-    window.open(res.data.url, "_blank");
+const downloadFile = async hash => {
+  request.get(`/lock/${route.params.lockUuid}/file/${hash}`).then(res => {
+    window.open(res.data.url, '_blank');
   });
 };
 
 watch(
   () => store.state.wallet.connected,
-  async (connected) => {
+  async connected => {
     if (connected === true) {
       loadLock();
     }
-  }
+  },
 );
 
 loadLock();
@@ -66,8 +66,8 @@ loadLock();
             ><i class="fa-regular fa-wallet"></i> Connect Wallet</el-button
           >
           <span
-            >Unlock this content by connecting your wallet to verify you have
-            the required NFT(s).</span
+            >Unlock this content by connecting your wallet to verify you have the required
+            NFT(s).</span
           >
         </div>
 
@@ -86,10 +86,7 @@ loadLock();
             </el-table-column>
             <el-table-column prop="mimetype" label="Type">
               <template #default="scope">
-                <i
-                  v-if="scope.row.mimetype === 'application/pdf'"
-                  class="fa-solid fa-file-pdf"
-                ></i>
+                <i v-if="scope.row.mimetype === 'application/pdf'" class="fa-solid fa-file-pdf"></i>
                 <i
                   v-else-if="scope.row.mimetype.startsWith('image/')"
                   class="fa-solid fa-file-image"

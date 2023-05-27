@@ -1,12 +1,12 @@
-import { useAuthTokenInterceptor } from "axios-jwt";
-import axios from "axios";
+import { useAuthTokenInterceptor } from 'axios-jwt';
+import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const apiClient = axios.create();
 
-const requestRefresh = async (refreshToken) => {
-  const res = await axios.post(API_URL + "/auth/refresh_token", {
+const requestRefresh = async refreshToken => {
+  const res = await axios.post(API_URL + '/auth/refresh_token', {
     token: refreshToken,
   });
   return {
@@ -33,7 +33,7 @@ async function post(endpoint, data, headers = {}) {
 const request = {
   get,
   post,
-  delete: async (endpoint) => apiClient.delete(API_URL + endpoint),
+  delete: async endpoint => apiClient.delete(API_URL + endpoint),
 };
 
 export { request };

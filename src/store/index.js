@@ -1,6 +1,6 @@
-import { createStore, createLogger } from "vuex";
-import wallet from "./wallet";
-import locks from "./locks";
+import { createStore, createLogger } from 'vuex';
+import wallet from './wallet';
+import locks from './locks';
 
 const debug = import.meta.env.DEV;
 

@@ -1,13 +1,8 @@
-import {
-  isLoggedIn as isJwtLoggedIn,
-  setAuthTokens,
-  clearAuthTokens,
-} from "axios-jwt";
-import * as api from "./api";
-import * as Tezos from "./tezos";
+import { isLoggedIn as isJwtLoggedIn, setAuthTokens, clearAuthTokens } from 'axios-jwt';
+import * as api from './api';
+import * as Tezos from './tezos';
 
-const isLoggedIn = async () =>
-  isJwtLoggedIn() && (await Tezos.hasActiveAccount());
+const isLoggedIn = async () => isJwtLoggedIn() && (await Tezos.hasActiveAccount());
 
 // login
 const login = async () => {
@@ -21,7 +16,7 @@ const login = async () => {
 
   const req = { msg: msg, sig: signedMsg, pubKey: activeAccount.publicKey };
 
-  const res = await api.request.post("/auth", req);
+  const res = await api.request.post('/auth', req);
 
   // save tokens to storage
   if (res && res.data && res.data.access_token && res.data.refresh_token) {
@@ -35,17 +30,17 @@ const login = async () => {
 };
 
 const T = () => {
-  let t = localStorage.getItem("auth-tokens-production"),
+  let t = localStorage.getItem('auth-tokens-production'),
     o;
   if (!t) {
-    t = localStorage.getItem("auth-tokens-development");
+    t = localStorage.getItem('auth-tokens-development');
   }
   try {
     o = JSON.parse(t);
     return o.accessToken;
   } catch (e) {
-    console.warn("Unauthorized", e);
-    return "";
+    console.warn('Unauthorized', e);
+    return '';
   }
 };
 

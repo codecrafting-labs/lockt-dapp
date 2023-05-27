@@ -1,5 +1,5 @@
-import { Tezos } from "./tezos";
-import { TaquitoTezosDomainsClient } from "@tezos-domains/taquito-client";
+import { Tezos } from './tezos';
+import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 const client = new TaquitoTezosDomainsClient({
   tezos: Tezos,
@@ -9,7 +9,7 @@ const client = new TaquitoTezosDomainsClient({
 
 export default {
   async resolveAddressToName(address, fallback) {
-    return client.resolver.resolveAddressToName(address).then((res) => {
+    return client.resolver.resolveAddressToName(address).then(res => {
       return res || fallback || address;
     });
   },

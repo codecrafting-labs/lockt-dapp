@@ -1,12 +1,12 @@
 <script setup>
-import { RouterView } from "vue-router";
-import { computed } from "vue";
-import { useStore } from "vuex";
+import { RouterView } from 'vue-router';
+import { computed } from 'vue';
+import { useStore } from 'vuex';
 
 const store = useStore();
 const wallet = computed(() => store.state.wallet);
-const logout = () => store.dispatch("disconnectWallet");
-store.dispatch("checkWalletConnected");
+const logout = () => store.dispatch('disconnectWallet');
+store.dispatch('checkWalletConnected');
 </script>
 
 <template>
@@ -16,18 +16,13 @@ store.dispatch("checkWalletConnected");
       <span>Unlockable content for Tezos NFTs</span>
     </el-header>
     <el-header v-if="wallet.connected" class="logged-in">
-      <el-row
-        style="max-width: 1280px; margin: 0 auto; margin-top: 8px"
-        align="middle"
-      >
+      <el-row style="max-width: 1280px; margin: 0 auto; margin-top: 8px" align="middle">
         <el-col :sm="24" :md="12">
           <img src="@/assets/logo.png" style="width: 100px" />
         </el-col>
         <el-col :sm="24" :md="12" style="text-align: right">
           <el-button round plain @click="logout">Unsync</el-button>
-          <span class="hidden-xs-only" style="margin-left: 15px">{{
-            wallet.pkhDomain
-          }}</span>
+          <span class="hidden-xs-only" style="margin-left: 15px">{{ wallet.pkhDomain }}</span>
         </el-col>
       </el-row>
     </el-header>
@@ -38,8 +33,8 @@ store.dispatch("checkWalletConnected");
     </el-main>
     <el-footer>
       Built by
-      <a href="https://cclabs.tech/" target="_blank">Codecrafting Labs</a>. Made
-      with <i class="fas fa-heart" style="color: #f64947"></i>
+      <a href="https://cclabs.tech/" target="_blank">Codecrafting Labs</a>. Made with
+      <i class="fas fa-heart" style="color: #f64947"></i>
     </el-footer>
   </el-container>
 </template>
