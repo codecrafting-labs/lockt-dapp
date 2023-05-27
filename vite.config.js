@@ -67,5 +67,15 @@ export default ({ command }) => {
         ],
       },
     },
+    build: {
+      sourcemap: 'inline',
+      commonjsOptions: {
+        transformMixedEsModules: true,
+        exclude: [
+          './node_modules/lodash-es/**',
+          './node_modules/@types/lodash-es/**',
+        ],
+      }
+    },
   });
 };
