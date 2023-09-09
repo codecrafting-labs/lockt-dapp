@@ -36,4 +36,4 @@ const request = {
   delete: async endpoint => apiClient.delete(API_URL + endpoint),
 };
 
-export { request };
+export { request, API_URL };

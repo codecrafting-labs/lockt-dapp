@@ -2,7 +2,7 @@
 import { reactive, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
-import { request } from './../util/api';
+import { request, API_URL } from './../util/api';
 import prettyBytes from 'pretty-bytes';
 
 const store = useStore();
@@ -38,7 +38,7 @@ const loadLock = async () => {
 
 const downloadFile = async hash => {
   request.get(`/lock/${route.params.lockUuid}/file/${hash}`).then(res => {
-    window.open(res.data.url, '_blank');
+    window.open(`${API_URL}/stream/${res.data.stream}`, '_blank');
   });
 };
 
