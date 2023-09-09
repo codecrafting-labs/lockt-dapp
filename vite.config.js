@@ -68,7 +68,7 @@ export default ({ command }) => {
       },
     },
     build: {
-      sourcemap: 'inline',
+      sourcemap: false,
       commonjsOptions: {
         transformMixedEsModules: true,
         exclude: [
